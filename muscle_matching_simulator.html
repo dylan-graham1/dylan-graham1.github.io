@@ -286,6 +286,80 @@ footer.note{
   color:var(--ink-soft);
 }
 
+/* ---------------- PASSWORD GATE ---------------- */
+.gate-screen{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+}
+.gate-card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:4px;
+  padding:36px 32px;
+  max-width:360px;
+  width:100%;
+  text-align:center;
+  box-shadow:0 2px 10px rgba(0,0,0,0.06);
+}
+.gate-eyebrow{
+  font-family:'JetBrains Mono', monospace;
+  font-size:0.68rem;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:var(--ink-soft);
+  margin-bottom:10px;
+}
+.gate-title{
+  font-family:'Fraunces', serif;
+  font-weight:700;
+  font-size:1.7rem;
+  color:var(--carmine-dark);
+  margin:0 0 8px;
+}
+.gate-sub{
+  font-family:'Source Sans 3', sans-serif;
+  font-size:0.9rem;
+  color:var(--ink-soft);
+  margin:0 0 22px;
+}
+.gate-input{
+  width:100%;
+  padding:11px 12px;
+  font-family:'Source Sans 3', sans-serif;
+  font-size:0.95rem;
+  border:1px solid var(--line);
+  border-radius:3px;
+  background:#fff;
+  color:var(--ink);
+  margin-bottom:14px;
+  text-align:center;
+}
+.gate-input:focus{outline:none;border-color:var(--carmine);}
+.gate-btn{
+  width:100%;
+  background:var(--carmine);
+  color:#fff;
+  border:none;
+  padding:12px 20px;
+  font-family:'Fraunces', serif;
+  font-weight:700;
+  font-size:1rem;
+  border-radius:3px;
+  cursor:pointer;
+}
+.gate-btn:hover{background:var(--carmine-dark);}
+.gate-btn:active{transform:translateY(1px);}
+.gate-error{
+  display:none;
+  margin-top:14px;
+  font-family:'JetBrains Mono', monospace;
+  font-size:0.75rem;
+  color:var(--carmine);
+}
+
 /* ---------------- MOBILE ---------------- */
 @media (max-width:600px){
   body{padding:18px 12px 84px;} /* clearance for the fixed action bar below */
@@ -327,6 +401,19 @@ footer.note{
 </style>
 </head>
 <body>
+
+<div id="gateScreen" class="gate-screen">
+  <div class="gate-card">
+    <div class="gate-eyebrow">Lab Guide 3 — Muscular System</div>
+    <h1 class="gate-title">Enter Password</h1>
+    <p class="gate-sub">This study tool is password protected.</p>
+    <input type="password" id="gatePassword" class="gate-input" placeholder="Password" autocomplete="off">
+    <button id="gateSubmit" class="gate-btn">Unlock</button>
+    <div id="gateError" class="gate-error">Incorrect password. Try again.</div>
+  </div>
+</div>
+
+<div id="siteContent" style="display:none;">
 <div class="wrap">
 
   <header class="top">
@@ -352,7 +439,7 @@ footer.note{
       <div class="field">
         <label>Number of questions</label>
         <select id="countSelect">
-          <option value="8">8</option>
+          <option value="5">5</option>
           <option value="10" selected>10</option>
           <option value="15">15</option>
           <option value="20">20</option>
@@ -399,7 +486,51 @@ footer.note{
 
   <footer class="note">Click a muscle in Column A, then click its match in Column B to pair them. Click a paired muscle again to undo. Based on Lab Guide 3 — Muscular System.</footer>
 </div>
+</div>
 
+<script>
+// ---------------- PASSWORD GATE ----------------
+const GATE_HASH = "dc98238e827835f762fb91d114080057077f4d0b29b17b119689262bf2fe5107";
+const GATE_STORAGE_KEY = "muscleLabUnlocked";
+
+async function sha256Hex(text){
+  const enc = new TextEncoder().encode(text);
+  const buf = await crypto.subtle.digest('SHA-256', enc);
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+function unlockSite(){
+  document.getElementById('gateScreen').style.display = 'none';
+  document.getElementById('siteContent').style.display = 'block';
+}
+
+async function attemptUnlock(){
+  const val = document.getElementById('gatePassword').value;
+  const hash = await sha256Hex(val);
+  if(hash === GATE_HASH){
+    try{ localStorage.setItem(GATE_STORAGE_KEY, '1'); }catch(e){}
+    unlockSite();
+  } else {
+    document.getElementById('gateError').style.display = 'block';
+    document.getElementById('gatePassword').value = '';
+    document.getElementById('gatePassword').focus();
+  }
+}
+
+document.getElementById('gateSubmit').onclick = attemptUnlock;
+document.getElementById('gatePassword').addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter') attemptUnlock();
+});
+
+(function checkExistingUnlock(){
+  try{
+    if(localStorage.getItem(GATE_STORAGE_KEY) === '1'){
+      unlockSite();
+    }
+  }catch(e){}
+})();
+
+</script>
 <script>
 // ---------------- DATA ----------------
 const DATA = [
@@ -615,8 +746,8 @@ function colBDisplayOrder(){
   const idxs = shuffledDefs.map((d,pos)=>pos);
   if(!checked) return idxs;
   return idxs.slice().sort((a,b)=>{
-    const ia = currentQuiz.findIndex(q=>q.correctText===shuffledDefs[a].text);
-    const ib = currentQuiz.findIndex(q=>q.correctText===shuffledDefs[b].text);
+    const ia = shuffledDefs[a].id;
+    const ib = shuffledDefs[b].id;
     return ia-ib;
   });
 }
@@ -694,7 +825,7 @@ function checkAnswers(){
   checked = true;
   let correct = 0;
   currentQuiz.forEach((q, idx)=>{
-    if(pairs[idx]!==undefined && shuffledDefs[pairs[idx]].text === q.correctText){
+    if(pairs[idx]!==undefined && shuffledDefs[pairs[idx]].id === idx){
       correct++;
     }
   });
@@ -708,12 +839,12 @@ function checkAnswers(){
     if(pairs[idx]===undefined){
       return;
     }
-    const isCorrect = shuffledDefs[pairs[idx]].text === q.correctText;
+    const isCorrect = shuffledDefs[pairs[idx]].id === idx;
     el.classList.add(isCorrect ? 'correct' : 'incorrect');
     if(!isCorrect){
       const key = document.createElement('div');
       key.className = 'answer-key';
-      const correctPos = shuffledDefs.findIndex(d=>d.text===q.correctText);
+      const correctPos = shuffledDefs.findIndex(d=>d.id===idx);
       const typeLabel = (q.fieldType==='origin' || q.fieldType==='insertion')
         ? ` (${q.fieldType==='origin'?'Origin':'Insertion'})` : '';
       key.textContent = `Correct: ${letters[correctPos]}${typeLabel}`;
@@ -726,7 +857,7 @@ function checkAnswers(){
     const usedBy = Object.entries(pairs).find(([k,v])=>v===pos);
     if(usedBy){
       const idx = parseInt(usedBy[0]);
-      const isCorrect = shuffledDefs[pos].text === currentQuiz[idx].correctText;
+      const isCorrect = shuffledDefs[pos].id === idx;
       el.classList.add(isCorrect ? 'correct' : 'incorrect');
     }
   });
