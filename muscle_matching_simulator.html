@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Musculature Matching Lab</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Source+Sans+3:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap');
@@ -130,6 +131,7 @@ select{
   color:#fff;
 }
 .chip:hover:not(.active){border-color:var(--carmine);}
+.chip:active{background:var(--paper-dim);}
 
 .start-btn{
   background:var(--carmine);
@@ -144,6 +146,7 @@ select{
   letter-spacing:0.01em;
 }
 .start-btn:hover{background:var(--carmine-dark);}
+.start-btn:active{background:var(--carmine-dark);transform:translateY(1px);}
 .count-note{font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--ink-soft);margin-top:10px;}
 
 /* QUIZ AREA */
@@ -170,6 +173,7 @@ select{
 }
 .tbtn.primary{background:var(--ink);color:#fff;}
 .tbtn.check{background:var(--sage);color:#fff;border-color:var(--sage-dark);}
+.tbtn:active{transform:translateY(1px);}
 .tbtn:disabled{opacity:0.4;cursor:default;}
 
 .columns{
@@ -177,7 +181,12 @@ select{
   grid-template-columns:1fr 1fr;
   gap:20px;
 }
-@media (max-width:720px){.columns{grid-template-columns:1fr;}}
+@media (max-width:600px){
+  .columns{gap:10px;}
+}
+@media (max-width:380px){
+  .columns{grid-template-columns:1fr;}
+}
 
 .col-title{
   font-family:'JetBrains Mono',monospace;
@@ -203,12 +212,14 @@ select{
   transition:border-color .1s ease, background .1s ease;
 }
 .item:hover{border-color:var(--carmine);}
+.item:active{background:var(--paper-dim);}
 .item .tag{
   font-family:'JetBrains Mono',monospace;
   font-weight:600;
   font-size:0.78rem;
   color:var(--carmine-dark);
   min-width:20px;
+  flex-shrink:0;
 }
 .item .txt{font-size:0.92rem;line-height:1.4;}
 .item.selected{
@@ -273,6 +284,45 @@ footer.note{
   font-family:'JetBrains Mono',monospace;
   font-size:0.68rem;
   color:var(--ink-soft);
+}
+
+/* ---------------- MOBILE ---------------- */
+@media (max-width:600px){
+  body{padding:18px 12px 84px;} /* clearance for the fixed action bar below */
+
+  header.top{
+    flex-direction:column;
+    align-items:flex-start;
+    padding-bottom:14px;
+    margin-bottom:18px;
+  }
+  .title-block h1{font-size:1.6rem;}
+  .plate-tag{text-align:left;}
+
+  .panel{padding:16px 16px;}
+  .row{gap:12px;}
+  .field{min-width:100%;}
+
+  .item{padding:10px 10px;}
+  .item .txt{font-size:0.88rem;}
+
+  /* Fixed action bar: keeps Check answers/Clear/New reachable without
+     scrolling back up through a long list of muscles */
+  .quiz-toolbar{
+    position:fixed;
+    left:0;
+    right:0;
+    bottom:0;
+    background:var(--paper);
+    padding:10px 12px;
+    border-top:1px solid var(--line);
+    box-shadow:0 -4px 10px rgba(0,0,0,0.08);
+    z-index:50;
+    margin:0;
+  }
+  .quiz-meta{display:none;}
+  .toolbar-btns{width:100%;}
+  .tbtn{flex:1;padding:12px 8px;font-size:0.85rem;}
 }
 </style>
 </head>
