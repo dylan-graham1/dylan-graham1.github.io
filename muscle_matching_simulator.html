@@ -685,6 +685,13 @@ function updatePoolNote(){
   document.getElementById('poolNote').textContent = pool.length + " muscles available in selected group(s)";
 }
 
+function acceptedTextsFor(mode, muscle){
+  if(mode==='origin') return [muscle.origin];
+  if(mode==='insertion') return [muscle.insertion];
+  if(mode==='action') return [muscle.action];
+  if(mode==='originInsertion') return [muscle.origin, muscle.insertion];
+}
+
 function fieldFor(mode, muscle){
   if(mode==='origin') return {text:muscle.origin, type:'origin'};
   if(mode==='insertion') return {text:muscle.insertion, type:'insertion'};
@@ -725,7 +732,8 @@ function startQuiz(){
     return {
       muscleName: m.name,
       correctText: f.text,
-      fieldType: f.type
+      fieldType: f.type,
+      acceptedTexts: acceptedTextsFor(mode, m)
     };
   });
 
@@ -834,7 +842,7 @@ function checkAnswers(){
   checked = true;
   let correct = 0;
   currentQuiz.forEach((q, idx)=>{
-    if(pairs[idx]!==undefined && normText(shuffledDefs[pairs[idx]].text) === normText(q.correctText)){
+    if(pairs[idx]!==undefined && q.acceptedTexts.some(t=>normText(t)===normText(shuffledDefs[pairs[idx]].text))){
       correct++;
     }
   });
@@ -848,18 +856,18 @@ function checkAnswers(){
     if(pairs[idx]===undefined){
       return;
     }
-    const isCorrect = normText(shuffledDefs[pairs[idx]].text) === normText(q.correctText);
+    const isCorrect = q.acceptedTexts.some(t=>normText(t)===normText(shuffledDefs[pairs[idx]].text));
     el.classList.add(isCorrect ? 'correct' : 'incorrect');
     if(!isCorrect){
       const key = document.createElement('div');
       key.className = 'answer-key';
       const correctLetters = shuffledDefs
-        .map((d,pos)=>({pos, match: normText(d.text)===normText(q.correctText)}))
+        .map((d,pos)=>({pos, match: q.acceptedTexts.some(t=>normText(t)===normText(d.text))}))
         .filter(o=>o.match)
         .map(o=>letters[o.pos]);
-      const typeLabel = (q.fieldType==='origin' || q.fieldType==='insertion')
-        ? ` (${q.fieldType==='origin'?'Origin':'Insertion'})` : '';
-      key.textContent = `Correct: ${correctLetters.join(' or ')}${typeLabel}`;
+      key.textContent = correctLetters.length
+        ? `Correct: ${correctLetters.join(' or ')}`
+        : `Correct answer not shown in this set`;
       el.appendChild(key);
     }
   });
@@ -869,7 +877,7 @@ function checkAnswers(){
     const usedBy = Object.entries(pairs).find(([k,v])=>v===pos);
     if(usedBy){
       const idx = parseInt(usedBy[0]);
-      const isCorrect = normText(shuffledDefs[pos].text) === normText(currentQuiz[idx].correctText);
+      const isCorrect = currentQuiz[idx].acceptedTexts.some(t=>normText(t)===normText(shuffledDefs[pos].text));
       el.classList.add(isCorrect ? 'correct' : 'incorrect');
     }
   });
