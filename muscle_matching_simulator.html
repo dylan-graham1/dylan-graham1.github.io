@@ -663,7 +663,7 @@ function buildGroupChips(){
   const el = document.getElementById('groupChips');
   DATA.forEach(g=>{
     const chip = document.createElement('div');
-    chip.className='chip active';
+    chip.className='chip';
     chip.textContent = g.group;
     chip.dataset.group = g.group;
     chip.onclick = ()=>{ chip.classList.toggle('active'); updatePoolNote(); };
@@ -672,7 +672,12 @@ function buildGroupChips(){
 }
 
 function activeGroups(){
-  return Array.from(document.querySelectorAll('.chip.active')).map(c=>c.dataset.group);
+  const selected = Array.from(document.querySelectorAll('.chip.active')).map(c=>c.dataset.group);
+  // No chips selected = no filter applied = all groups available
+  if(selected.length === 0){
+    return DATA.map(g=>g.group);
+  }
+  return selected;
 }
 
 function updatePoolNote(){
@@ -816,6 +821,10 @@ function clearPairs(){
   renderColumns();
 }
 
+function normText(t){
+  return (t||'').trim().toLowerCase();
+}
+
 function checkAnswers(){
   const total = currentQuiz.length;
   const answered = Object.keys(pairs).length;
@@ -825,7 +834,7 @@ function checkAnswers(){
   checked = true;
   let correct = 0;
   currentQuiz.forEach((q, idx)=>{
-    if(pairs[idx]!==undefined && shuffledDefs[pairs[idx]].id === idx){
+    if(pairs[idx]!==undefined && normText(shuffledDefs[pairs[idx]].text) === normText(q.correctText)){
       correct++;
     }
   });
@@ -839,15 +848,18 @@ function checkAnswers(){
     if(pairs[idx]===undefined){
       return;
     }
-    const isCorrect = shuffledDefs[pairs[idx]].id === idx;
+    const isCorrect = normText(shuffledDefs[pairs[idx]].text) === normText(q.correctText);
     el.classList.add(isCorrect ? 'correct' : 'incorrect');
     if(!isCorrect){
       const key = document.createElement('div');
       key.className = 'answer-key';
-      const correctPos = shuffledDefs.findIndex(d=>d.id===idx);
+      const correctLetters = shuffledDefs
+        .map((d,pos)=>({pos, match: normText(d.text)===normText(q.correctText)}))
+        .filter(o=>o.match)
+        .map(o=>letters[o.pos]);
       const typeLabel = (q.fieldType==='origin' || q.fieldType==='insertion')
         ? ` (${q.fieldType==='origin'?'Origin':'Insertion'})` : '';
-      key.textContent = `Correct: ${letters[correctPos]}${typeLabel}`;
+      key.textContent = `Correct: ${correctLetters.join(' or ')}${typeLabel}`;
       el.appendChild(key);
     }
   });
@@ -857,7 +869,7 @@ function checkAnswers(){
     const usedBy = Object.entries(pairs).find(([k,v])=>v===pos);
     if(usedBy){
       const idx = parseInt(usedBy[0]);
-      const isCorrect = shuffledDefs[pos].id === idx;
+      const isCorrect = normText(shuffledDefs[pos].text) === normText(currentQuiz[idx].correctText);
       el.classList.add(isCorrect ? 'correct' : 'incorrect');
     }
   });
