@@ -449,7 +449,10 @@ footer.note{
       </div>
     </div>
     <div class="field" style="margin-bottom:16px;">
-      <label>Muscle group(s) — click to toggle, or leave all selected</label>
+      <div class="row" style="align-items:center; justify-content:space-between;">
+        <label>Muscle group(s) — click to toggle, or leave all selected</label>
+        <button type="button" class="tbtn" id="clearFiltersBtn" style="padding:4px 10px;font-size:0.75rem;">Clear filters</button>
+      </div>
       <div class="chip-group" id="groupChips"></div>
     </div>
     <div class="row" style="align-items:center;">
@@ -716,6 +719,10 @@ document.getElementById('startBtn').onclick = startQuiz;
 document.getElementById('newBtn').onclick = startQuiz;
 document.getElementById('clearBtn').onclick = clearPairs;
 document.getElementById('checkBtn').onclick = checkAnswers;
+document.getElementById('clearFiltersBtn').onclick = ()=>{
+  document.querySelectorAll('.chip.active').forEach(c=>c.classList.remove('active'));
+  updatePoolNote();
+};
 
 function startQuiz(){
   const mode = document.getElementById('modeSelect').value;
