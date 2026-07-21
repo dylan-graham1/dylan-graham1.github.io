@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Musculature Matching Lab</title>
+<title>Nerve Innervation Matching Lab</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Source+Sans+3:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap');
 
 :root{
   --paper: #e8e2d0;
   --paper-dim: #ddd5bd;
-  --ink: #2a2724;
+  --ink: #2a2724;ƒ
   --ink-soft: #5a544b;
   --carmine: #7a1f2b;
   --carmine-dark: #591620;
@@ -229,11 +229,6 @@ select{
 .item.used{
   opacity:0.55;
 }
-.item.paired-hint{
-  font-family:'JetBrains Mono',monospace;
-  font-size:0.68rem;
-  color:var(--sage-dark);
-}
 .item.correct{background:#e2ecdf;border-color:var(--sage-dark);}
 .item.incorrect{background:#f3ddd9;border-color:var(--carmine);}
 
@@ -253,12 +248,6 @@ select{
   font-family:'JetBrains Mono',monospace;
   font-size:0.72rem;
   color:var(--carmine-dark);
-}
-.type-tag{
-  font-family:'JetBrains Mono',monospace;
-  font-size:0.68rem;
-  color:var(--sage-dark);
-  font-style:italic;
 }
 
 #resultsBanner{
@@ -381,7 +370,7 @@ footer.note{
   .item .txt{font-size:0.88rem;}
 
   /* Fixed action bar: keeps Check answers/Clear/New reachable without
-     scrolling back up through a long list of muscles */
+     scrolling back up through a long list of nerves */
   .quiz-toolbar{
     position:fixed;
     left:0;
@@ -404,7 +393,7 @@ footer.note{
 
 <div id="gateScreen" class="gate-screen">
   <div class="gate-card">
-    <div class="gate-eyebrow">Lab Guide 3 — Muscular System</div>
+    <div class="gate-eyebrow">Lab Guide — Nervous System</div>
     <h1 class="gate-title">Enter Password</h1>
     <p class="gate-sub">This study tool is password protected.</p>
     <input type="password" id="gatePassword" class="gate-input" placeholder="Password" autocomplete="off">
@@ -418,10 +407,10 @@ footer.note{
 
   <header class="top">
     <div class="title-block">
-      <h1>Musculature Matching Lab</h1>
-      <div class="sub">Origins &middot; Insertions &middot; Actions — Practice Simulator</div>
+      <h1>Nerve Innervation Matching Lab</h1>
+      <div class="sub">Nerves &middot; Innervations — Practice Simulator</div>
     </div>
-    <div class="plate-tag">Lab Guide 3<br><b>Muscular System</b><br>Specimen Ref. Set A–L</div>
+    <div class="plate-tag">Lab Guide<br><b>Nervous System</b><br>Specimen Ref. Set A–B</div>
   </header>
 
   <div class="panel" id="setupPanel">
@@ -430,10 +419,8 @@ footer.note{
       <div class="field">
         <label>Question type</label>
         <select id="modeSelect">
-          <option value="originInsertion" selected>Match muscle → Origin OR Insertion (mixed)</option>
-          <option value="action">Match muscle → Action</option>
-          <option value="origin">Match muscle → Origin</option>
-          <option value="insertion">Match muscle → Insertion</option>
+          <option value="innervation" selected>Match nerve → Innervation</option>
+          <option value="function">Match nerve → Primary function </option>
         </select>
       </div>
       <div class="field">
@@ -441,16 +428,13 @@ footer.note{
         <select id="countSelect">
           <option value="5">5</option>
           <option value="10" selected>10</option>
-          <option value="15">15</option>
-          <option value="20">20</option>
-          <option value="30">30</option>
           <option value="all">All available in group(s)</option>
         </select>
       </div>
     </div>
-    <div class="field" style="margin-bottom:16px;">
+    <div class="field" style="margin-bottom:16px;" id="groupFilterField">
       <div class="row" style="align-items:center; justify-content:space-between;">
-        <label>Muscle group(s) — click to toggle, or leave all selected</label>
+        <label>Nerve group(s) — click to toggle, or leave all selected</label>
         <button type="button" class="tbtn" id="clearFiltersBtn" style="padding:4px 10px;font-size:0.75rem;">Clear filters</button>
       </div>
       <div class="chip-group" id="groupChips"></div>
@@ -477,24 +461,24 @@ footer.note{
     </div>
     <div class="columns">
       <div>
-        <div class="col-title">Column A — Muscles</div>
+        <div class="col-title">Column A — Nerves</div>
         <div id="colA"></div>
       </div>
       <div>
-        <div class="col-title">Column B — Match each item</div>
+        <div class="col-title" id="colBTitle">Column B — Match each innervation</div>
         <div id="colB"></div>
       </div>
     </div>
   </div>
 
-  <footer class="note">Click a muscle in Column A, then click its match in Column B to pair them. Click a paired muscle again to undo. Based on Lab Guide 3 — Muscular System.</footer>
+  <footer class="note">Click a nerve in Column A, then click its match in Column B to pair them. Click a paired nerve again to undo. Based on Lab Guide — Nervous System.</footer>
 </div>
 </div>
 
 <script>
 // ---------------- PASSWORD GATE ----------------
 const GATE_HASH = "dc98238e827835f762fb91d114080057077f4d0b29b17b119689262bf2fe5107";
-const GATE_STORAGE_KEY = "muscleLabUnlocked";
+const GATE_STORAGE_KEY = "nerveLabUnlocked";
 
 async function sha256Hex(text){
   const enc = new TextEncoder().encode(text);
@@ -536,127 +520,78 @@ document.getElementById('gatePassword').addEventListener('keydown', (e)=>{
 </script>
 <script>
 // ---------------- DATA ----------------
+// Note: Sciatic nerve was listed in the source table but its innervation cell
+// was blank (marked ***), so it has been left out of the quiz pool since there
+// is no answer to match it against.
 const DATA = [
-{group:"Move the mandible", muscles:[
-  {name:"Masseter", origin:"Zygomatic bone & zygomatic arch", insertion:"Angle & ramus of mandible", action:"Elevates mandible"},
-  {name:"Temporalis", origin:"Along superior & inferior temporal lines", insertion:"Coronoid process of mandible", action:"Elevates mandible"}
+{group:"Upper Limb Nerves", nerves:[
+  {name:"Axillary", innervation:"Deltoid and teres minor, sensory from skin over shoulder"},
+  {name:"Radial", innervation:"Extensors of the arm and forearm, digital extensors, sensory from posterolateral arm and radial portion of hand"},
+  {name:"Musculocutaneous", innervation:"Flexors of the arm, sensory from skin over lateral surface of forearm"},
+  {name:"Median", innervation:"Flexors of the forearm, sensory from skin over anterolateral surface of the hand"},
+  {name:"Ulnar", innervation:"Flexor carpi ulnaris, sensory from skin over medial surface of hand"}
 ]},
-{group:"Move the head & neck", muscles:[
-  {name:"Sternocleidomastoid", origin:"Manubrium of sternum, medial clavicle", insertion:"Mastoid process & lateral part of superior nuchal line", action:"Flexion of neck and head if bilateral contraction; lateral flexion & contralateral rotation if one side contracts", cadaver:true},
-  {name:"Anterior scalene", origin:"Transverse processes C3–6", insertion:"1st rib", action:"Flexion of neck and head if bilateral contraction; lateral flexion & contralateral rotation if one side contracts, accessory muscle of inspiration."},
-  {name:"Middle scalene", origin:"Transverse processes C2–7", insertion:"1st rib", action:"Flexion of neck and head if bilateral contraction; lateral flexion & contralateral rotation if one side contracts, accessory muscle of inspiration."},
-  {name:"Posterior scalene", origin:"Transverse processes C5–7", insertion:"2nd rib", action:"Flexion of neck and head if bilateral contraction; lateral flexion & contralateral rotation if one side contracts, accessory muscle of inspiration."},
-  {name:"Semispinalis capitis", origin:"Transverse processes C4–T7", insertion:"Between superior & inferior nuchal lines of occipital bone", action:"Extension of head and neck if bilateral contraction; lateral flexion & rotation if unilateral"},
-  {name:"Splenius capitis", origin:"Spinous processes C7–T4", insertion:"Mastoid process of temporal bone & lateral aspect of superior nuchal line", action:"Extension of head and neck if bilateral contraction; lateral flexion & rotation if unilateral"}
+{group:"Lower Limb Nerves", nerves:[
+  {name:"Femoral nerve", innervation:"Anterior muscles of thigh, adductors of hip, skin over anteromedial surface of thigh, medial surface of leg and foot"},
+  {name:"Saphenous nerve", innervation:"Skin over medial surface of leg"},
+  {name:"Sciatic nerve", innervation:"Muscles of the posterior thigh (biceps femoris, semimembranosus and semitendinosus) and the hamstring portion of the adductor magnus (remaining portion of which is supplied by the obturator nerve)"},
+  {name:"Tibial nerve", innervation:"Muscles of the thigh and flexors of knee and extensors of ankle, flexors of toes, plantar surface of foot"},
+  {name:"Fibular nerve", innervation:"Short head of biceps femoris, fibularis, tibialis anterior, extensors of toes, skin over lateral portion of foot"}
 ]},
-{group:"Breathing", muscles:[
-  {name:"Diaphragm", origin:"Xiphoid process, lower 6 ribs & their cartilage, L1–L3", insertion:"Fibers converge on a central tendon", action:"Primary muscle of inspiration"},
-  {name:"External intercostals", origin:"Inferior border of each rib", insertion:"Superior border of rib below", action:"Primary muscle of inspiration", cadaver:true},
-  {name:"Internal intercostals", origin:"Superior border of each rib", insertion:"Inferior border of rib above", action:"Primary muscle of forced expiration"}
-]},
-{group:"Torso / vertebral column", muscles:[
-  {name:"Longissimus thoracis", origin:"Spinous processes of lower thoracic & lumbar vertebrae; sacrum", insertion:"Transverse processes of thoracic vertebrae, posterior surface of lower 10 ribs", action:"Extension of spine if bilateral contraction; lateral flexion if one side contracts"},
-  {name:"Quadratus lumborum", origin:"Posterior margin of iliac crest", insertion:"12th rib, transverse processes of L1–L4", action:"Lateral flexion of vertebral column"}
-]},
-{group:"Move the pectoral girdle", muscles:[
-  {name:"Trapezius", origin:"Superior nuchal line, external occipital protuberance, spinous processes C7–T12", insertion:"Lateral clavicle, acromion process & spine of scapula", action:"Elevates, retracts &/or depresses scapula; can also extend neck"},
-  {name:"Levator scapulae", origin:"Transverse processes C1–C4", insertion:"Medial aspect of superior border of scapula", action:"Elevation of scapula"},
-  {name:"Rhomboideus minor", origin:"Spinous processes of C7–T1", insertion:"Medial border of scapula near spine of scapula", action:"Retraction of scapula"},
-  {name:"Rhomboideus major", origin:"Spinous processes of T2–T5", insertion:"Medial border of scapula from spine to inferior angle", action:"Retraction of scapula"},
-  {name:"Pectoralis minor", origin:"Anterior surface of ribs 3–5", insertion:"Coracoid process of scapula", action:"Pulls scapula anteriorly & inferiorly (protracts & depresses scapula)", cadaver:true},
-  {name:"Serratus anterior", origin:"Anteriolateral surface of ribs 1–9", insertion:"Anterior surface of medial border of scapula", action:"Protracts scapula", cadaver:true}
-]},
-{group:"Move the arm / brachium", muscles:[
-  {name:"Deltoid", origin:"Clavicle & acromion and spine of scapula", insertion:"Deltoid tuberosity of humerus", action:"Abducts shoulder joint; also can flex or extend at shoulder"},
-  {name:"Latissimus dorsi", origin:"Spinous processes of lower thoracic vertebrae & lower ribs", insertion:"Intertubercular groove of humerus", action:"Extends, adducts & medially rotates shoulder"},
-  {name:"Pectoralis major", origin:"Sternum, clavicle & costal cartilage of ribs 2–6", insertion:"Greater tubercle of humerus", action:"Flexes, adducts & medially rotates shoulder", cadaver:true},
-  {name:"Coracobrachialis", origin:"Coracoid process of scapula", insertion:"Medial shaft of humerus", action:"Adducts & slightly flexes shoulder"},
-  {name:"Supraspinatus (rotator cuff)", origin:"Supraspinous fossa", insertion:"Greater tubercle of humerus", action:"Abducts arm at shoulder joint"},
-  {name:"Infraspinatus (rotator cuff)", origin:"Infraspinous fossa", insertion:"Greater tubercle of humerus", action:"Lateral rotation at shoulder joint"},
-  {name:"Teres minor (rotator cuff)", origin:"Lateral border of scapula, by inferior angle", insertion:"Greater tubercle of humerus", action:"Lateral rotation at shoulder joint"},
-  {name:"Subscapularis (rotator cuff)", origin:"Subscapular fossa", insertion:"Lesser tubercle of humerus", action:"Medial rotation at shoulder joint"},
-  {name:"Teres major", origin:"Inferior angle of scapula", insertion:"Medial lip of intertubercular groove", action:"Medial rotation of arm, adduction & slight extension at shoulder joint"}
-]},
-{group:"Move the forearm", muscles:[
-  {name:"Biceps brachii", origin:"Long head above glenoid fossa; short head at coracoid process", insertion:"Radial tuberosity", action:"Flexes elbow and supinates forearm at proximal radio-ulnar joint"},
-  {name:"Brachialis", origin:"Diaphysis of humerus", insertion:"Coronoid process & proximal ulna", action:"Flexes elbow joint"},
-  {name:"Brachioradialis", origin:"Lateral epicondyle of humerus", insertion:"Styloid process of radius", action:"Flexes elbow joint"},
-  {name:"Pronator teres", origin:"Medial epicondyle of humerus & coronoid process of ulna", insertion:"Mid-lateral radius", action:"Pronates and slightly flexes forearm"},
-  {name:"Triceps brachii", origin:"Long head below glenoid fossa of scapula; lateral & medial head on shaft of humerus", insertion:"Olecranon process", action:"Extends at elbow joint; long head also extends at shoulder joint"},
-  {name:"Supinator", origin:"Lateral epicondyle of humerus", insertion:"Postero-lateral proximal radius", action:"Supinates forearm"}
-]},
-{group:"Move the wrist &/or fingers", muscles:[
-  {name:"Flexor carpi radialis", origin:"Medial epicondyle of humerus", insertion:"Metacarpals 2 & 3", action:"Flexes & abducts (radial deviation) wrist"},
-  {name:"Palmaris longus", origin:"Medial epicondyle of humerus", insertion:"Palmar aponeurosis & flexor retinaculum", action:"Flexes wrist"},
-  {name:"Flexor carpi ulnaris", origin:"Medial epicondyle of humerus, proximal anterior ulna", insertion:"Pisiform, hamate & 5th metacarpal", action:"Flexion & adduction (ulnar deviation) of wrist"},
-  {name:"Flexor digitorum superficialis", origin:"Medial epicondyle of humerus, proximal ulna & radius", insertion:"Lateral margins of middle phalanges 2–5", action:"Flexion of fingers & wrist"},
-  {name:"Flexor digitorum profundus", origin:"Medial & anterior surface of ulna", insertion:"Distal phalanges 2–5", action:"Flexes distal phalanges"},
-  {name:"Flexor pollicis longus", origin:"Anterior shaft of radius", insertion:"Distal phalanx of thumb (pollex)", action:"Flexion of thumb"},
-  {name:"Extensor carpi radialis longus", origin:"Above lateral epicondyle of humerus", insertion:"Posterior surface of 2nd metacarpal", action:"Extends hand at wrist, helps with radial deviation (abduction)"},
-  {name:"Extensor carpi radialis brevis", origin:"Lateral epicondyle of humerus", insertion:"Posterior surface of 3rd metacarpal", action:"Extension of hand, helps abduction of wrist"},
-  {name:"Extensor digitorum", origin:"Lateral epicondyle of humerus", insertion:"Posterior surface of all phalanges", action:"Extends fingers & wrist"},
-  {name:"Extensor digiti minimi", origin:"Common extensor tendon at lateral epicondyle of humerus", insertion:"Posterior surface of 5th digit", action:"Extends 5th digit"},
-  {name:"Extensor carpi ulnaris", origin:"Lateral epicondyle of humerus", insertion:"Posterior surface of 5th metacarpal", action:"Extends hand, helps in adduction (ulnar deviation) at wrist"},
-  {name:"Abductor pollicis longus", origin:"Posterior surface of proximal shaft of radius & ulna", insertion:"Posterior surface of 1st metacarpal", action:"Abducts thumb & slight abduction at wrist"},
-  {name:"Extensor pollicis brevis", origin:"Posterior surface of mid radius", insertion:"Proximal phalanx of thumb", action:"Extends thumb"},
-  {name:"Extensor pollicis longus", origin:"Posterior surface of mid ulna", insertion:"Distal phalanx of thumb", action:"Extends thumb"}
-]},
-{group:"Move the thigh (hip joint)", muscles:[
-  {name:"Gluteus maximus", origin:"Iliac crest, sacrum and thoracolumbar fascia", insertion:"Below greater trochanter at gluteal tuberosity and onto iliotibial tract", action:"Extends and laterally rotates hip joint; also tenses iliotibial band to laterally support knee"},
-  {name:"Gluteus medius", origin:"Posterior iliac crest", insertion:"Greater trochanter", action:"Abducts hip joint"},
-  {name:"Gluteus minimus", origin:"Lateral surface of ilium", insertion:"Greater trochanter", action:"Abduction & slight medial rotation of thigh at hip joint"},
-  {name:"Piriformis", origin:"Anterior sacrum", insertion:"Greater trochanter", action:"Lateral rotation of thigh at hip joint"},
-  {name:"Gemellus superior", origin:"Ischial spine", insertion:"Greater trochanter", action:"Lateral rotation of thigh"},
-  {name:"Obturator internus", origin:"Margins of obturator foramen", insertion:"Greater trochanter", action:"Lateral rotation of thigh"},
-  {name:"Gemellus inferior", origin:"Ischial spine", insertion:"Greater trochanter", action:"Lateral rotation of thigh"},
-  {name:"Quadratus femoris", origin:"Lateral border of ischial tuberosity", insertion:"Intertrochanteric crest of femur", action:"Lateral rotation of thigh"},
-  {name:"Psoas major", origin:"Anterior bodies & transverse processes of T12–L5", insertion:"Lesser trochanter", action:"Flexion of thigh at hip; can also flex lumbar spine if hip stabilized"},
-  {name:"Iliacus", origin:"Iliac fossa", insertion:"Lesser trochanter (tendon fused with psoas)", action:"Flexion of thigh at hip; tendon fuses with psoas major to form \"iliopsoas\""},
-  {name:"Tensor fasciae latae (TFL)", origin:"Iliac crest and anterior superior iliac spine", insertion:"Iliotibial tract", action:"Flexes and slightly medially rotates hip joint; tenses iliotibial band to laterally support knee"},
-  {name:"Pectineus", origin:"Superior ramus of pubis", insertion:"From lesser trochanter to linea aspera of femur", action:"Flexes & adducts at hip, slight medial rotation of thigh"},
-  {name:"Gracilis", origin:"Inferior pubic ramus", insertion:"Medial shaft of tibia", action:"Adduction & slight medial rotation at hip; helps with flexion of knee"},
-  {name:"Adductor longus", origin:"Inferior ramus of pubis", insertion:"Middle half of linea aspera", action:"Adducts, flexes and helps to medially rotate femur"},
-  {name:"Adductor magnus", origin:"Inferior ramus of pubis", insertion:"Linea aspera", action:"Adducts, extends and may help rotate hip joint"}
-]},
-{group:"Move the thigh &/or leg", muscles:[
-  {name:"Sartorius", origin:"Anterior superior iliac spine", insertion:"Proximal medial tibia near tibial tuberosity", action:"Flexes & laterally rotates at hip joint & flexes knee joint"},
-  {name:"Rectus femoris", origin:"Anterior inferior iliac spine", insertion:"Tibial tuberosity via patellar ligament", action:"Flexes hip joint and extends at knee joint"},
-  {name:"Vastus medialis", origin:"Linea aspera", insertion:"Tibial tuberosity via patellar ligament", action:"Extends at knee joint"},
-  {name:"Vastus lateralis", origin:"Below greater trochanter", insertion:"Tibial tuberosity via patellar ligament", action:"Extends at knee joint"},
-  {name:"Vastus intermedius", origin:"Anteriolateral surface of femur", insertion:"Tibial tuberosity via patellar ligament", action:"Extends at knee joint"},
-  {name:"Biceps femoris", origin:"Ischial tuberosity (long head), linea aspera (short head)", insertion:"Head of fibula", action:"Extends at hip joint (long head only) and flexes at knee joint"},
-  {name:"Semitendinosus", origin:"Ischial tuberosity", insertion:"Medial condyle of tibia", action:"Extends hip joint and flexes at knee joint"},
-  {name:"Semimembranosus", origin:"Ischial tuberosity", insertion:"Medial surface of tibia", action:"Extends hip joint and flexes at knee joint"},
-  {name:"Popliteus", origin:"Lateral condyle of femur", insertion:"Posterior surface of proximal tibia", action:"Medial rotation of tibia at knee to help \"unlock\" knee after standing"}
-]},
-{group:"Move the ankle/foot/toes", muscles:[
-  {name:"Tibialis anterior", origin:"Lateral condyle & upper half of tibia", insertion:"Medial cuneiform & 1st metatarsal", action:"Dorsiflexion at ankle & inversion of foot"},
-  {name:"Extensor digitorum longus", origin:"Lateral condyle of tibia & anterior fibula", insertion:"Superior surface of toes (phalanges 2–5)", action:"Extension of toes"},
-  {name:"Extensor hallucis longus", origin:"Anterior mid fibula", insertion:"Superior surface distal phalanx of hallux", action:"Extension of hallux"},
-  {name:"Peroneus (fibularis) longus", origin:"Lateral condyle of tibia, proximal lateral fibula", insertion:"Under foot to medial cuneiform & 1st metatarsal", action:"Eversion and plantar flexion of foot/ankle"},
-  {name:"Peroneus (fibularis) brevis", origin:"Midlateral fibula", insertion:"Base of 5th metatarsal", action:"Eversion of foot"},
-  {name:"Gastrocnemius", origin:"Femoral condyles", insertion:"Calcaneus via calcaneal tendon", action:"Plantar flexes at ankle and also causes flexion at knee"},
-  {name:"Soleus", origin:"Head and shaft of fibula and shaft of tibia", insertion:"Calcaneus via calcaneal tendon", action:"Plantar flexion at ankle"},
-  {name:"Flexor digitorum longus", origin:"Posterior tibia", insertion:"Inferior surface distal phalanges 2–5", action:"Flexion of toes"},
-  {name:"Tibialis posterior", origin:"Posterior tibia & fibula", insertion:"Tarsals & metatarsals", action:"Plantarflexion at ankle & inversion of foot"},
-  {name:"Flexor hallucis longus", origin:"Posterior fibula", insertion:"Inferior surface distal phalanx of hallux", action:"Flexion of hallux"}
+{group:"Cranial Nerves", nerves:[
+  {name:"Olfactory (I)", innervation:"Olfactory epithelium"},
+  {name:"Optic (II)", innervation:"Retina of eye"},
+  {name:"Oculomotor (III)", innervation:"Inferior, medial, superior rectus, inferior oblique, and levator palpebrae; intrinsic muscles of eye"},
+  {name:"Trochlear (IV)", innervation:"Superior oblique"},
+  {name:"Trigeminal (V)", innervation:"Areas associated with the jaws"},
+  {name:"Trigeminal (V) — Ophthalmic", innervation:"Orbital structures, nasal cavity, skin of forehead, upper eyelid, eyebrows, nose (part)"},
+  {name:"Trigeminal (V) — Maxillary", innervation:"Lower eyelid; upper lip, gums, and teeth; cheek, nose (part), palate, and pharynx (part)"},
+  {name:"Trigeminal (V) — Mandibular", innervation:"Sensory from lower gums, teeth, lips; palate (part) and tongue (part). Motor to muscles of mastication"},
+  {name:"Abducens (VI)", innervation:"Lateral rectus"},
+  {name:"Facial (VII)", innervation:"Sensory from taste receptors on anterior two-thirds of tongue; motor to muscles of facial expression, lacrimal gland, submandibular gland, sublingual glands"},
+  {name:"Vestibulocochlear (VIII) — Cochlear Nerve", innervation:"Cochlea (receptors for hearing)"},
+  {name:"Vestibulocochlear (VIII) — Vestibular Nerve", innervation:"Vestibule (receptors for motion and balance)"},
+  {name:"Glossopharyngeal (IX)", innervation:"Sensory from posterior third of tongue; pharynx and palate (part); carotid body (monitors blood pressure, pH, and levels of respiratory gases). Motor to pharyngeal muscles, parotid gland"},
+  {name:"Vagus (X)", innervation:"Sensory from pharynx; auricle and external acoustic meatus; diaphragm; visceral organs in thoracic and abdominopelvic cavities. Motor to palatal and pharyngeal muscles, and visceral organs in thoracic and abdominopelvic cavities"},
+  {name:"Accessory (XI) — Internal branch", innervation:"Skeletal muscles of palate, pharynx, and larynx (with branches of the vagus nerve)"},
+  {name:"Accessory (XI) — External branch", innervation:"Sternocleidomastoid and trapezius"},
+  {name:"Hypoglossal (XII)", innervation:"Tongue musculature"}
 ]}
 ];
 
+// Primary-function data for cranial nerves only (branches collapsed to one
+// entry per nerve, per instructions: Trigeminal -> "Both (sensory and motor)",
+// Vestibulocochlear -> single "Special sensory" entry, Accessory -> single
+// "Motor" entry).
+const CRANIAL_FUNCTIONS = [
+  {name:"Olfactory (I)", func:"Special sensory"},
+  {name:"Optic (II)", func:"Special sensory"},
+  {name:"Oculomotor (III)", func:"Motor"},
+  {name:"Trochlear (IV)", func:"Motor"},
+  {name:"Trigeminal (V)", func:"Mixed},
+  {name:"Abducens (VI)", func:"Motor"},
+  {name:"Facial (VII)", func:"Mixed"},
+  {name:"Vestibulocochlear (VIII)", func:"Special sensory"},
+  {name:"Glossopharyngeal (IX)", func:"Mixed"},
+  {name:"Vagus (X)", func:"Mixed"},
+  {name:"Accessory (XI)", func:"Motor"},
+  {name:"Hypoglossal (XII)", func:"Motor"}
+];
+
 // ---------------- STATE ----------------
-let currentQuiz = []; // array of {muscleName, correctText}
+let currentQuiz = []; // array of {nerveName, correctText}
 let shuffledDefs = []; // array of {text, id}
-let pairs = {}; // muscleIndex -> defId
-let selectedMuscleIdx = null;
+let pairs = {}; // nerveIndex -> defId
+let selectedNerveIdx = null;
 let checked = false;
 
 const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-function allMuscles(groupNames){
+function allNerves(groupNames){
   let out = [];
   DATA.forEach(g=>{
     if(groupNames.includes(g.group)){
-      g.muscles.forEach(m=>out.push(m));
+      g.nerves.forEach(n=>out.push(n));
     }
   });
   return out;
@@ -684,26 +619,19 @@ function activeGroups(){
 }
 
 function updatePoolNote(){
-  const pool = allMuscles(activeGroups());
-  document.getElementById('poolNote').textContent = pool.length + " muscles available in selected group(s)";
-}
-
-function acceptedTextsFor(mode, muscle){
-  if(mode==='origin') return [muscle.origin];
-  if(mode==='insertion') return [muscle.insertion];
-  if(mode==='action') return [muscle.action];
-  if(mode==='originInsertion') return [muscle.origin, muscle.insertion];
-}
-
-function fieldFor(mode, muscle){
-  if(mode==='origin') return {text:muscle.origin, type:'origin'};
-  if(mode==='insertion') return {text:muscle.insertion, type:'insertion'};
-  if(mode==='action') return {text:muscle.action, type:'action'};
-  if(mode==='originInsertion'){
-    // randomly choose origin or insertion per muscle, tag it
-    const useOrigin = Math.random() < 0.5;
-    return useOrigin ? {text:muscle.origin, type:'origin'} : {text:muscle.insertion, type:'insertion'};
+  const mode = document.getElementById('modeSelect').value;
+  if(mode === 'function'){
+    document.getElementById('poolNote').textContent = CRANIAL_FUNCTIONS.length + " cranial nerves available";
+  } else {
+    const pool = allNerves(activeGroups());
+    document.getElementById('poolNote').textContent = pool.length + " nerves available in selected group(s)";
   }
+}
+
+function onModeChange(){
+  const mode = document.getElementById('modeSelect').value;
+  document.getElementById('groupFilterField').style.display = (mode === 'function') ? 'none' : 'block';
+  updatePoolNote();
 }
 
 function shuffle(arr){
@@ -719,6 +647,7 @@ document.getElementById('startBtn').onclick = startQuiz;
 document.getElementById('newBtn').onclick = startQuiz;
 document.getElementById('clearBtn').onclick = clearPairs;
 document.getElementById('checkBtn').onclick = checkAnswers;
+document.getElementById('modeSelect').onchange = onModeChange;
 document.getElementById('clearFiltersBtn').onclick = ()=>{
   document.querySelectorAll('.chip.active').forEach(c=>c.classList.remove('active'));
   updatePoolNote();
@@ -727,36 +656,38 @@ document.getElementById('clearFiltersBtn').onclick = ()=>{
 function startQuiz(){
   const mode = document.getElementById('modeSelect').value;
   const countVal = document.getElementById('countSelect').value;
-  const groups = activeGroups();
-  let pool = allMuscles(groups);
-  if(pool.length === 0){ alert("Select at least one muscle group."); return; }
-  pool = shuffle(pool);
-  const n = countVal === 'all' ? pool.length : Math.min(parseInt(countVal), pool.length);
-  const chosen = pool.slice(0, n);
+  let chosen, colBLabel, modeLabel;
 
-  currentQuiz = chosen.map((m, idx)=>{
-    const f = fieldFor(mode, m);
-    return {
-      muscleName: m.name,
-      correctText: f.text,
-      fieldType: f.type,
-      acceptedTexts: acceptedTextsFor(mode, m)
-    };
-  });
+  if(mode === 'function'){
+    let pool = shuffle(CRANIAL_FUNCTIONS);
+    const n = countVal === 'all' ? pool.length : Math.min(parseInt(countVal), pool.length);
+    chosen = pool.slice(0, n).map(nrv=>({ nerveName: nrv.name, correctText: nrv.func }));
+    colBLabel = "Column B — Match each primary function";
+    modeLabel = "Nerve → Primary Function";
+  } else {
+    const groups = activeGroups();
+    let pool = allNerves(groups);
+    if(pool.length === 0){ alert("Select at least one nerve group."); return; }
+    pool = shuffle(pool);
+    const n = countVal === 'all' ? pool.length : Math.min(parseInt(countVal), pool.length);
+    chosen = pool.slice(0, n).map(nrv=>({ nerveName: nrv.name, correctText: nrv.innervation }));
+    colBLabel = "Column B — Match each innervation";
+    modeLabel = "Nerve → Innervation";
+  }
 
-  shuffledDefs = shuffle(currentQuiz.map((q,i)=>({id:i, text:q.correctText, type:q.fieldType})));
+  currentQuiz = chosen;
+
+  shuffledDefs = shuffle(currentQuiz.map((q,i)=>({id:i, text:q.correctText})));
 
   pairs = {};
-  selectedMuscleIdx = null;
+  selectedNerveIdx = null;
   checked = false;
 
   document.getElementById('resultsBanner').style.display = 'none';
   document.getElementById('quizArea').style.display = 'block';
-  document.getElementById('metaMode').textContent = ({
-    origin:"Muscle → Origin", insertion:"Muscle → Insertion",
-    originInsertion:"Muscle → Origin/Insertion (mixed)", action:"Muscle → Action"
-  })[mode];
   document.getElementById('metaCount').textContent = currentQuiz.length;
+  document.getElementById('metaMode').textContent = modeLabel;
+  document.getElementById('colBTitle').textContent = colBLabel;
 
   renderColumns();
   document.getElementById('quizArea').scrollIntoView({behavior:'smooth', block:'start'});
@@ -780,14 +711,14 @@ function renderColumns(){
 
   currentQuiz.forEach((q, idx)=>{
     const div = document.createElement('div');
-    div.className = 'item' + (selectedMuscleIdx===idx ? ' selected':'') + (pairs[idx]!==undefined ? ' used':'');
+    div.className = 'item' + (selectedNerveIdx===idx ? ' selected':'') + (pairs[idx]!==undefined ? ' used':'');
     div.dataset.idx = idx;
     let badge = '';
     if(pairs[idx]!==undefined){
       badge = `<span class="pair-badge">${letters[pairs[idx]]}</span>`;
     }
-    div.innerHTML = `<span class="tag">${idx+1}.</span><span class="txt">${q.muscleName}</span>${badge}`;
-    div.onclick = ()=>onMuscleClick(idx);
+    div.innerHTML = `<span class="tag">${idx+1}.</span><span class="txt">${q.nerveName}</span>${badge}`;
+    div.onclick = ()=>onNerveClick(idx);
     colA.appendChild(div);
   });
 
@@ -798,39 +729,37 @@ function renderColumns(){
     div.className = 'item' + (usedBy ? ' used':'');
     div.dataset.pos = pos;
     let badge = usedBy ? `<span class="pair-badge">#${parseInt(usedBy[0])+1}</span>` : '';
-    let typeTag = (checked && d.type && (d.type==='origin' || d.type==='insertion'))
-      ? ` <span class="type-tag">(${d.type==='origin'?'Origin':'Insertion'})</span>` : '';
-    div.innerHTML = `<span class="tag">${letters[pos]}.</span><span class="txt">${d.text}${typeTag}</span>${badge}`;
+    div.innerHTML = `<span class="tag">${letters[pos]}.</span><span class="txt">${d.text}</span>${badge}`;
     div.onclick = ()=>onDefClick(pos);
     colB.appendChild(div);
   });
 }
 
-function onMuscleClick(idx){
+function onNerveClick(idx){
   if(checked) return;
   if(pairs[idx]!==undefined){
     delete pairs[idx];
-    selectedMuscleIdx = null;
+    selectedNerveIdx = null;
     renderColumns();
     return;
   }
-  selectedMuscleIdx = (selectedMuscleIdx===idx) ? null : idx;
+  selectedNerveIdx = (selectedNerveIdx===idx) ? null : idx;
   renderColumns();
 }
 
 function onDefClick(pos){
   if(checked) return;
-  if(selectedMuscleIdx===null) return;
+  if(selectedNerveIdx===null) return;
   // remove any existing pairing that used this def
   Object.keys(pairs).forEach(k=>{ if(pairs[k]===pos) delete pairs[k]; });
-  pairs[selectedMuscleIdx] = pos;
-  selectedMuscleIdx = null;
+  pairs[selectedNerveIdx] = pos;
+  selectedNerveIdx = null;
   renderColumns();
 }
 
 function clearPairs(){
   pairs = {};
-  selectedMuscleIdx = null;
+  selectedNerveIdx = null;
   checked = false;
   document.getElementById('resultsBanner').style.display = 'none';
   renderColumns();
@@ -849,7 +778,7 @@ function checkAnswers(){
   checked = true;
   let correct = 0;
   currentQuiz.forEach((q, idx)=>{
-    if(pairs[idx]!==undefined && q.acceptedTexts.some(t=>normText(t)===normText(shuffledDefs[pairs[idx]].text))){
+    if(pairs[idx]!==undefined && normText(q.correctText)===normText(shuffledDefs[pairs[idx]].text)){
       correct++;
     }
   });
@@ -863,18 +792,13 @@ function checkAnswers(){
     if(pairs[idx]===undefined){
       return;
     }
-    const isCorrect = q.acceptedTexts.some(t=>normText(t)===normText(shuffledDefs[pairs[idx]].text));
+    const isCorrect = normText(q.correctText)===normText(shuffledDefs[pairs[idx]].text);
     el.classList.add(isCorrect ? 'correct' : 'incorrect');
     if(!isCorrect){
       const key = document.createElement('div');
       key.className = 'answer-key';
-      const correctLetters = shuffledDefs
-        .map((d,pos)=>({pos, match: q.acceptedTexts.some(t=>normText(t)===normText(d.text))}))
-        .filter(o=>o.match)
-        .map(o=>letters[o.pos]);
-      key.textContent = correctLetters.length
-        ? `Correct: ${correctLetters.join(' or ')}`
-        : `Correct answer not shown in this set`;
+      const correctPos = shuffledDefs.findIndex(d=>normText(d.text)===normText(q.correctText));
+      key.textContent = correctPos>=0 ? `Correct: ${letters[correctPos]}` : `Correct answer not shown in this set`;
       el.appendChild(key);
     }
   });
@@ -884,7 +808,7 @@ function checkAnswers(){
     const usedBy = Object.entries(pairs).find(([k,v])=>v===pos);
     if(usedBy){
       const idx = parseInt(usedBy[0]);
-      const isCorrect = currentQuiz[idx].acceptedTexts.some(t=>normText(t)===normText(shuffledDefs[pos].text));
+      const isCorrect = normText(currentQuiz[idx].correctText)===normText(shuffledDefs[pos].text);
       el.classList.add(isCorrect ? 'correct' : 'incorrect');
     }
   });
